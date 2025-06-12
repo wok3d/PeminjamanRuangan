@@ -25,7 +25,7 @@ public class Database {
             stmt.setString(2, date);
             stmt.setString(3, slot);
             ResultSet rs = stmt.executeQuery();
-            return rs.next();  // true if already booked
+            return rs.next();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
