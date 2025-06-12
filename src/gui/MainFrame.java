@@ -124,7 +124,7 @@ public class MainFrame extends JFrame {
         selectedRoomButton = btn;
         selectedRoom = roomName;
         btn.setBackground(new Color(70, 130, 180));
-        btn.setForeground(Color.WHITE);
+        btn.setForeground(Color.BLACK);
     }
 
     private JPanel createBookingPanel() {
@@ -222,8 +222,8 @@ public class MainFrame extends JFrame {
         // Set new selection
         selectedTimeButton = btn;
         selectedTime = time;
-        btn.setBackground(new Color(70, 130, 180));
-        btn.setForeground(Color.WHITE);
+        btn.setBackground(new Color(161, 161, 161));
+        btn.setForeground(Color.BLACK);
     }
 
     private void updateTimeButtonColor(JButton btn, String time) {
@@ -261,7 +261,7 @@ public class MainFrame extends JFrame {
         bookBtn.setPreferredSize(new Dimension(120, 40));
         bookBtn.setFont(new Font("Arial", Font.BOLD, 12));
         bookBtn.setBackground(new Color(70, 130, 180));
-        bookBtn.setForeground(Color.WHITE);
+        bookBtn.setForeground(Color.BLACK);
         bookBtn.setBorder(BorderFactory.createLineBorder(new Color(70, 130, 180), 1, true));
         bookBtn.setFocusPainted(false);
 
