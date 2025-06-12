@@ -2,8 +2,8 @@
 Aplikasi Peminjaman Ruangan Gedung Dewi Sartika
 
 
-# Database
-## Pertama masukan query dari database di bawah ini
+## Database
+### Pertama masukan query dari database di bawah ini
 
 Create database peminjaman_ruangan;
 
@@ -33,4 +33,26 @@ ALTER TABLE `bookings`
 
 ALTER TABLE `rooms`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-COMMIT;
+
+## Buka Di Intellij
+### Tahap 1: Download
+https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-9.2.0.tar.gz
+
+### Tahap 2: Ekstrak File
+
+### Tahap 3: Open Intellij
+- ctrl + shift + alt + s
+- Buka SDKs
+- copy JDK home path
+
+- Buka Libraries
+- Tambah (+)
+- Java
+- Paste JDK home path 
+- OK
+- Pilih Jar Directory
+- OK
+
+- Tambah (+)
+- Java
+- Paste path dari mysql-connector-j-9.2.0 yang sudah di ekstrak
