@@ -88,7 +88,7 @@ public class MainFrame extends JFrame {
     }
 
     private JButton createRoomButton(String roomName) {
-        JButton btn = new JButton(roomName);
+        JButton btn = new RoundedButton(roomName);
         btn.setPreferredSize(new Dimension(120, 120));
         btn.setFont(new Font("Arial", Font.BOLD, 24));
         btn.setFocusPainted(false);
@@ -196,73 +196,56 @@ public class MainFrame extends JFrame {
     }
 
     private JButton createTimeButton(String time) {
-        JButton btn = new JButton(time);
+        RoundedButton btn = new RoundedButton(time);
         btn.setPreferredSize(new Dimension(120, 35));
-        btn.setFont(new Font("Arial", Font.PLAIN, 11));
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(true);
-        btn.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1, true));
-        btn.setBackground(Color.WHITE);
-        btn.setForeground(Color.BLACK);
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        btn.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Cek apakah slot sudah dibooking
+        boolean isBooked = selectedRoom != null && BookingController.isSlotBooked(selectedRoom, selectedDate, time);
+
+        if (isBooked) {
+            btn.setBackground(new Color(255, 255, 255)); // abu-abu gelap
+            btn.setForeground(Color.WHITE);
+            btn.setEnabled(false); // disable klik
+        } else {
+            btn.setBackground(new Color(200, 200, 200)); // abu-abu muda
+            btn.setForeground(Color.BLACK);
+        }
 
         btn.addActionListener(e -> {
-            if (selectedRoom == null) {
-                JOptionPane.showMessageDialog(this, "Silakan pilih ruangan terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-                return;
+            if (selectedTimeButton != null) {
+                updateTimeButtonColor(selectedTimeButton, selectedTimeButton.getText());
             }
-
-            boolean isBooked = BookingController.isSlotBooked(selectedRoom, selectedDate, time);
-
-            if (isBooked) {
-                int response = JOptionPane.showConfirmDialog(this, "Slot ini sudah dibooking. Apakah Anda ingin membatalkan booking ini?", "Konfirmasi Pembatalan", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                if (response == JOptionPane.YES_OPTION) {
-                    boolean success = BookingController.cancelBooking(selectedRoom, selectedDate, time);
-                    if (success) {
-                        JOptionPane.showMessageDialog(this, "Booking berhasil dibatalkan.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-                        refreshTimeSlots();
-                        refreshRoomStatus();
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Gagal membatalkan booking.", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            } else {
-                selectTimeSlot(btn, time);
-            }
+            selectedTimeButton = btn;
+            selectedTime = time;
+            btn.setBackground(new Color(161, 161, 161)); // selected grey
+            btn.setForeground(Color.BLACK);
         });
+
         return btn;
     }
 
-    private void selectTimeSlot(JButton btn, String time) {
-        if (selectedTimeButton != null) {
-            updateTimeButtonColor(selectedTimeButton, selectedTimeButton.getText());
-        }
-        selectedTimeButton = btn;
-        selectedTime = time;
-        btn.setBackground(new Color(161, 161, 161));
-        btn.setForeground(Color.BLACK);
-    }
 
     private void updateTimeButtonColor(JButton btn, String time) {
         if (selectedRoom != null) {
             boolean isBooked = BookingController.isSlotBooked(selectedRoom, selectedDate, time);
             if (isBooked) {
-                btn.setBackground(new Color(128, 128, 128));
-                btn.setForeground(Color.WHITE);
-                btn.setEnabled(true);
+                btn.setBackground(new Color(80, 80, 80)); // abu gelap
+                btn.setForeground(Color.WHITE); // atau bisa juga Color.WHITE
+                btn.setEnabled(false); // biar nggak bisa diklik
             } else {
-                // Kembalikan ke warna normal jika tidak sedang dipilih
-                if (btn != selectedTimeButton) {
-                    btn.setBackground(Color.WHITE);
-                    btn.setForeground(Color.BLACK);
-                }
+                btn.setBackground(new Color(200, 200, 200));
+                btn.setForeground(Color.BLACK);
                 btn.setEnabled(true);
             }
         } else {
-            btn.setBackground(Color.WHITE);
+            btn.setBackground(new Color(200, 200, 200));
             btn.setForeground(Color.BLACK);
             btn.setEnabled(true);
         }
     }
+
 
     private JPanel createActionPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 2, 10, 0));
