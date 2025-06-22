@@ -1,6 +1,9 @@
 package model;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Database {
     private static Connection conn;
@@ -22,8 +25,7 @@ public class Database {
 
 
     private static void createTableIfNotExists() {
-        try {
-            Statement stmt = conn.createStatement();
+        try (Statement stmt = conn.createStatement()) {
             String createTableSQL = """
                 CREATE TABLE IF NOT EXISTS bookings (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -41,15 +43,14 @@ public class Database {
     }
 
     public static boolean checkBooking(String room, String date, String slot) {
-        try {
-            PreparedStatement stmt = conn.prepareStatement(
-                    "SELECT * FROM bookings WHERE room_name=? AND date=? AND timeslot=?"
-            );
+        String sql = "SELECT * FROM bookings WHERE room_name=? AND date=? AND timeslot=?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, room);
             stmt.setString(2, date);
             stmt.setString(3, slot);
-            ResultSet rs = stmt.executeQuery();
-            return rs.next();
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -57,15 +58,14 @@ public class Database {
     }
 
     public static boolean checkAnyBooking(String room, String date) {
-        try {
-            PreparedStatement stmt = conn.prepareStatement(
-                    "SELECT COUNT(*) FROM bookings WHERE room_name=? AND date=?"
-            );
+        String sql = "SELECT COUNT(*) FROM bookings WHERE room_name=? AND date=?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, room);
             stmt.setString(2, date);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
             }
             return false;
         } catch (SQLException e) {
@@ -74,11 +74,25 @@ public class Database {
         }
     }
 
+    public static int countBookingsForRoomOnDate(String room, String date) {
+        String sql = "SELECT COUNT(*) FROM bookings WHERE room_name = ? AND date = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, room);
+            stmt.setString(2, date);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public static boolean insertBooking(String room, String date, String slot) {
-        try {
-            PreparedStatement stmt = conn.prepareStatement(
-                    "INSERT INTO bookings (room_name, date, timeslot) VALUES (?, ?, ?)"
-            );
+        String sql = "INSERT INTO bookings (room_name, date, timeslot) VALUES (?, ?, ?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, room);
             stmt.setString(2, date);
             stmt.setString(3, slot);
@@ -88,5 +102,43 @@ public class Database {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static boolean deleteBooking(String room, String date, String timeslot) {
+        String sql = "DELETE FROM bookings WHERE room_name = ? AND date = ? AND timeslot = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, room);
+            stmt.setString(2, date);
+            stmt.setString(3, timeslot);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static List<Object[]> getAllBookings() {
+        List<Object[]> bookings = new ArrayList<>();
+        String sql = "SELECT id, room_name, date, timeslot, booked_at FROM bookings ORDER BY date DESC, room_name, timeslot";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Object[] row = new Object[5];
+                row[0] = rs.getInt("id");
+                row[1] = rs.getString("room_name");
+                java.util.Date date = rs.getDate("date");
+                SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy");
+                row[2] = sdf.format(date);
+                row[3] = rs.getString("timeslot");
+                Timestamp timestamp = rs.getTimestamp("booked_at");
+                SimpleDateFormat sdf2 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                row[4] = sdf2.format(timestamp);
+                bookings.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
     }
 }
