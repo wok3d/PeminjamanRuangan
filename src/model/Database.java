@@ -2,6 +2,8 @@ package model;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,24 +123,42 @@ public class Database {
     public static List<Object[]> getAllBookings() {
         List<Object[]> bookings = new ArrayList<>();
         String sql = "SELECT id, room_name, date, timeslot, booked_at FROM bookings ORDER BY date DESC, room_name, timeslot";
+
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+
             while (rs.next()) {
                 Object[] row = new Object[5];
+
+                // Ambil ID, ruangan, dan waktu
                 row[0] = rs.getInt("id");
                 row[1] = rs.getString("room_name");
-                java.util.Date date = rs.getDate("date");
+
+                // Format tanggal booking
+                Date date = rs.getDate("date");
                 SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy");
                 row[2] = sdf.format(date);
+
+                // Slot waktu
                 row[3] = rs.getString("timeslot");
+
+                // Format booked_at
                 Timestamp timestamp = rs.getTimestamp("booked_at");
-                SimpleDateFormat sdf2 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-                row[4] = sdf2.format(timestamp);
+                if (timestamp != null) {
+                    LocalDateTime bookedTime = timestamp.toLocalDateTime();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+                    row[4] = bookedTime.format(formatter);
+                } else {
+                    row[4] = "-";
+                }
+
                 bookings.add(row);
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return bookings;
     }
 }

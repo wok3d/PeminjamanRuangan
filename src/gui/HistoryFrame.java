@@ -20,7 +20,12 @@ public class HistoryFrame extends JFrame {
 
         // Buat model tabel tapi belum diisi data
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-        JTable table = new JTable(model);
+        JTable table = new JTable(model) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // semua kolom tidak bisa diedit
+            }
+        };
         table.setFont(new Font("Arial", Font.PLAIN, 14));
         table.setRowHeight(25);
         table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
