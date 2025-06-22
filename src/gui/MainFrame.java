@@ -233,7 +233,7 @@ public class MainFrame extends JFrame {
             if (isBooked) {
                 btn.setBackground(new Color(80, 80, 80)); // abu gelap
                 btn.setForeground(Color.WHITE); // atau bisa juga Color.WHITE
-                btn.setEnabled(false); // biar nggak bisa diklik
+                btn.setEnabled(true); // biar nggak bisa diklik
             } else {
                 btn.setBackground(new Color(200, 200, 200));
                 btn.setForeground(Color.BLACK);
@@ -250,13 +250,16 @@ public class MainFrame extends JFrame {
     private JPanel createActionPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 2, 10, 0));
         panel.setBackground(Color.WHITE);
+
         JButton cancelBtn = new JButton("CANCEL");
         cancelBtn.setPreferredSize(new Dimension(120, 40));
         cancelBtn.setFont(new Font("Arial", Font.BOLD, 12));
-        cancelBtn.setBackground(Color.WHITE);
+        cancelBtn.setBackground(new Color(70, 130, 180));
         cancelBtn.setForeground(Color.BLACK);
-        cancelBtn.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1, true));
+        cancelBtn.setBorder(BorderFactory.createLineBorder(new Color(70, 130, 180), 1, true));
         cancelBtn.setFocusPainted(false);
+        cancelBtn.addActionListener(e -> cancelSelectedBooking());
+
         JButton bookBtn = new JButton("BOOK");
         bookBtn.setPreferredSize(new Dimension(120, 40));
         bookBtn.setFont(new Font("Arial", Font.BOLD, 12));
@@ -264,12 +267,14 @@ public class MainFrame extends JFrame {
         bookBtn.setForeground(Color.BLACK);
         bookBtn.setBorder(BorderFactory.createLineBorder(new Color(70, 130, 180), 1, true));
         bookBtn.setFocusPainted(false);
-        cancelBtn.addActionListener(e -> cancelSelection());
         bookBtn.addActionListener(e -> bookRoom());
+
         panel.add(cancelBtn);
         panel.add(bookBtn);
+
         return panel;
     }
+
 
     private void refreshRoomStatus() {
         Component[] components = roomPanel.getComponents();
@@ -311,6 +316,40 @@ public class MainFrame extends JFrame {
         selectedRoom = null;
         selectedTime = null;
         refreshTimeSlots();
+    }
+
+    private void cancelSelectedBooking() {
+        if (selectedRoom == null || selectedTime == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Silakan pilih ruangan dan waktu booking yang ingin dibatalkan!",
+                    "Peringatan",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Apakah Anda yakin ingin membatalkan booking untuk:\nRuangan " + selectedRoom +
+                        "\nTanggal " + formatDate(selectedDate) + "\nWaktu " + selectedTime,
+                "Konfirmasi Pembatalan",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            boolean success = BookingController.cancelBooking(selectedRoom, selectedDate, selectedTime);
+
+            if (success) {
+                JOptionPane.showMessageDialog(this,
+                        "Booking berhasil dibatalkan.",
+                        "Sukses",
+                        JOptionPane.INFORMATION_MESSAGE);
+                cancelSelection(); // reset UI
+                refreshRoomStatus(); // update warna tombol ruangan
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Gagal membatalkan booking.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private void bookRoom() {
