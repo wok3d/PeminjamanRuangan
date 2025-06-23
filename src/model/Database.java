@@ -120,17 +120,22 @@ public class Database {
         }
     }
 
-    public static List<Object[]> getAllBookings() {
+    public static List<Object[]> getAllBookings(String order) {
         List<Object[]> bookings = new ArrayList<>();
-        String sql = "SELECT id, room_name, date, timeslot, booked_at FROM bookings ORDER BY date DESC, room_name, timeslot";
+        // Validasi nilai order (agar tidak bisa SQL Injection, batasi ASC/DESC saja)
+        if (!order.equalsIgnoreCase("ASC") && !order.equalsIgnoreCase("DESC")) {
+            order = "ASC"; // nilai default
+        }
+
+        String sql = "SELECT id, room_name, date, timeslot, booked_at " +
+                "FROM bookings " +
+                "ORDER BY id " + order;
 
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 Object[] row = new Object[5];
-
-                // Ambil ID, ruangan, dan waktu
                 row[0] = rs.getInt("id");
                 row[1] = rs.getString("room_name");
 
@@ -161,4 +166,5 @@ public class Database {
 
         return bookings;
     }
+
 }

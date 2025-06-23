@@ -31,7 +31,7 @@ public class HistoryFrame extends JFrame {
         table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
 
         // Panggil data dari database
-        List<Object[]> bookings = Database.getAllBookings();
+        List<Object[]> bookings = Database.getAllBookings("DESC");
         for (Object[] row : bookings) {
             model.addRow(row);
         }
