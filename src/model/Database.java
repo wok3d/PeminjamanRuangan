@@ -14,7 +14,7 @@ public class Database {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/peminjaman_ruangan?useSSL=false&serverTimezone=UTC",
+                    "jdbc:mysql://localhost:3306/peminjaman_ruangan?useSSL=false&serverTimezone=Asia/Jakarta",
                     "root", ""
             );
             System.out.println("Koneksi ke database berhasil.");
